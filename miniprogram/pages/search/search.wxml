@@ -1,0 +1,18 @@
+<view class="container">
+  <input class="search-input" placeholder="输入品牌/车型/关键词" bindinput="onInput" />
+  <button bindtap="search">搜索</button>
+
+  <view wx:if="{{loading}}">加载中...</view>
+
+  <view wx:if="{{results.length===0 && !loading}}">无结果</view>
+
+  <block wx:for="{{results}}" wx:key="id">
+    <view class="item">
+      <text class="title">{{item.title}}</text>
+      <text class="meta">品牌：{{item.make}}  车型：{{item.model}}  年份：{{item.year}}</text>
+      <text class="meta">价格：¥{{item.price}}  行驶：{{item.mileage}} km</text>
+      <text class="desc">{{item.description}}</text>
+    </view>
+  </block>
+  
+</view>

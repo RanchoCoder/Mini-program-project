@@ -1,0 +1,6 @@
+.container { padding: 12px }
+.search-input { width: 70%; border: 1px solid #ddd; padding: 6px }
+.item { padding: 8px 0; border-bottom: 1px solid #f0f0f0 }
+.title { font-weight: bold }
+.meta { color: #666; display: block; margin-top: 4px }
+.desc { color: #333; display: block; margin-top: 6px }

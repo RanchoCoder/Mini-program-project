@@ -23,8 +23,8 @@ def get_db_connection():
     return conn
 
 # -------------------------- 微信登录配置（你的真实信息） --------------------------
-WX_APPID = "wxd18848e6830ff127"  # 你的小程序AppID
-WX_SECRET = "bfa1fb0d3bdb681d8be3c6b085ac5443"  # 你的小程序AppSecret
+WX_APPID = ""  # 你的小程序AppID
+WX_SECRET = ""  # 你的小程序AppSecret
 WX_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session"
 
 # -------------------------- 数据库车辆数据 --------------------------

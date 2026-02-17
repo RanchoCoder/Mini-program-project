@@ -53,15 +53,15 @@ python backend\app.py
 3. 修改配置文件 `miniprogram/config.js`：
 ```javascript
 // 开发环境
-API_BASE: 'http://127.0.0.1:5000'
+API_BASE: ''
 
 // 生产环境（真机调试需要HTTPS）
-// API_BASE: 'https://your-domain.com'
+// API_BASE: ''
 ```
 4. 微信登录配置：
    - 如需真实微信登录，设置环境变量 `WX_APPSECRET`
    - 不设置则使用模拟登录（开发测试用）
-5. 在微信开发者工具中导入项目，使用AppID: `wxd18848e6830ff127`
+5. 在微信开发者工具中导入项目，使用AppID: ``
 
 ## 配置说明
 
@@ -200,7 +200,7 @@ POST /api/user/profile
 ## 调试说明
 
 ### 本地开发
-1. 后端运行在 `http://127.0.0.1:5000`
+1. 后端运行在 ``
 2. 小程序开发者工具设置：
    - 关闭域名校验
    - 开启开发环境不校验请求域名

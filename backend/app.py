@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import requests
 import random
 import logging
+import sqlite3
+import os
 
 # 配置日志，方便查看真实登录信息
 logging.basicConfig(
@@ -11,137 +13,46 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# -------------------------- 数据库配置 --------------------------
+DB_PATH = os.path.join(os.path.dirname(__file__), 'cars.db')
+
+def get_db_connection():
+    """获取数据库连接"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # 使查询结果可以按列名访问
+    return conn
+
 # -------------------------- 微信登录配置（你的真实信息） --------------------------
 WX_APPID = "wxd18848e6830ff127"  # 你的小程序AppID
 WX_SECRET = "bfa1fb0d3bdb681d8be3c6b085ac5443"  # 你的小程序AppSecret
 WX_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session"
 
-# -------------------------- 模拟二手车数据 --------------------------
-CAR_DATA = [
-    {
-        "id": 1,
-        "title": "宝马3系 2020款",
-        "make": "宝马",
-        "model": "3系",
-        "year": 2020,
-        "price": 258000,
-        "mileage": 35000,
-        "description": "精品车况，全程4S店保养",
-    },
-    {
-        "id": 2,
-        "title": "奔驰C级 2021款",
-        "make": "奔驰",
-        "model": "C级",
-        "year": 2021,
-        "price": 285000,
-        "mileage": 28000,
-        "description": "原版原漆，一手车",
-    },
-    {
-        "id": 3,
-        "title": "大众迈腾 2019款",
-        "make": "大众",
-        "model": "迈腾",
-        "year": 2019,
-        "price": 168000,
-        "mileage": 52000,
-        "description": "家用代步车，省油耐用",
-    },
-    {
-        "id": 4,
-        "title": "丰田凯美瑞 2022款",
-        "make": "丰田",
-        "model": "凯美瑞",
-        "year": 2022,
-        "price": 218000,
-        "mileage": 18000,
-        "description": "混动版本，油耗低",
-    },
-    {
-        "id": 5,
-        "title": "本田雅阁 2020款",
-        "make": "本田",
-        "model": "雅阁",
-        "year": 2020,
-        "price": 195000,
-        "mileage": 42000,
-        "description": "空间大，适合家用",
-    },
-    {
-        "id": 6,
-        "title": "宝马5系 2021款",
-        "make": "宝马",
-        "model": "5系",
-        "year": 2021,
-        "price": 388000,
-        "mileage": 25000,
-        "description": "豪华轿车，配置齐全",
-    },
-    {
-        "id": 7,
-        "title": "奔驰E级 2020款",
-        "make": "奔驰",
-        "model": "E级",
-        "year": 2020,
-        "price": 365000,
-        "mileage": 32000,
-        "description": "商务用车，车况优秀",
-    },
-    {
-        "id": 8,
-        "title": "大众途观L 2021款",
-        "make": "大众",
-        "model": "途观L",
-        "year": 2021,
-        "price": 228000,
-        "mileage": 30000,
-        "description": "SUV，四驱版本",
-    },
-    {
-        "id": 9,
-        "title": "丰田汉兰达 2022款",
-        "make": "丰田",
-        "model": "汉兰达",
-        "year": 2022,
-        "price": 328000,
-        "mileage": 20000,
-        "description": "7座SUV，家用首选",
-    },
-    {
-        "id": 10,
-        "title": "本田CR-V 2020款",
-        "make": "本田",
-        "model": "CR-V",
-        "year": 2020,
-        "price": 188000,
-        "mileage": 45000,
-        "description": "紧凑型SUV，省油",
-    },
-    {
-        "id": 11,
-        "title": "宝马X3 2022款",
-        "make": "宝马",
-        "model": "X3",
-        "year": 2022,
-        "price": 398000,
-        "mileage": 15000,
-        "description": "豪华SUV，操控好",
-    },
-    {
-        "id": 12,
-        "title": "奔驰GLC 2021款",
-        "make": "奔驰",
-        "model": "GLC",
-        "year": 2021,
-        "price": 378000,
-        "mileage": 22000,
-        "description": "四驱，全景天窗",
-    },
-]
+# -------------------------- 数据库车辆数据 --------------------------
 
 
 # -------------------------- 接口实现 --------------------------
+@app.route("/")
+def index():
+    """首页 - API文档"""
+    return jsonify({
+        "message": "二手车搜索API服务",
+        "status": "运行中",
+        "apis": {
+            "GET /api/cars": "获取车辆列表（支持搜索、筛选、分页）",
+            "GET /api/cars/<id>": "获取单个车辆详情",
+            "POST /api/wxlogin": "微信登录接口"
+        },
+        "examples": {
+            "获取所有车辆": "/api/cars",
+            "搜索车辆": "/api/cars?q=丰田",
+            "品牌筛选": "/api/cars?brand=BMW",
+            "年份筛选": "/api/cars?min_year=2015&max_year=2020",
+            "分页": "/api/cars?page=1&page_size=5",
+            "车辆详情": "/api/cars/21"
+        }
+    })
+
+
 @app.route("/api/wxlogin", methods=["POST"])
 def wx_login():
     """微信登录接口（获取真实openid）"""
@@ -220,40 +131,58 @@ def get_cars():
         page = int(request.args.get("page", 1))  # 当前页
         page_size = int(request.args.get("page_size", 10))  # 每页条数
 
-        # 数据筛选
-        filtered_cars = CAR_DATA
+        # 构建SQL查询
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 基础查询
+        sql = "SELECT * FROM cars WHERE 1=1"
+        params = []
+        
         # 1. 模糊搜索（关键词匹配标题/品牌/车型）
         if q:
-            filtered_cars = [
-                car
-                for car in filtered_cars
-                if q in car["title"] or q in car["make"] or q in car["model"]
-            ]
+            sql += " AND (title LIKE ? OR make LIKE ? OR model LIKE ?)"
+            params.extend([f'%{q}%', f'%{q}%', f'%{q}%'])
+        
         # 2. 品牌筛选
         if brand:
-            filtered_cars = [car for car in filtered_cars if car["make"] == brand]
+            sql += " AND make = ?"
+            params.append(brand)
+        
         # 3. 年份筛选
         if min_year:
-            filtered_cars = [
-                car for car in filtered_cars if car["year"] >= int(min_year)
-            ]
+            sql += " AND year >= ?"
+            params.append(int(min_year))
         if max_year:
-            filtered_cars = [
-                car for car in filtered_cars if car["year"] <= int(max_year)
-            ]
-
-        # 分页处理
-        total = len(filtered_cars)
-        start = (page - 1) * page_size
-        end = start + page_size
-        paginated_cars = filtered_cars[start:end]
+            sql += " AND year <= ?"
+            params.append(int(max_year))
+        
+        # 获取总数
+        count_sql = f"SELECT COUNT(*) FROM ({sql})"
+        cursor.execute(count_sql, params)
+        total = cursor.fetchone()[0]
+        
+        # 分页查询
+        sql += " ORDER BY id LIMIT ? OFFSET ?"
+        params.extend([page_size, (page - 1) * page_size])
+        
+        cursor.execute(sql, params)
+        rows = cursor.fetchall()
+        
+        # 转换为字典格式
+        cars_list = []
+        for row in rows:
+            car = dict(row)
+            cars_list.append(car)
+        
+        conn.close()
 
         return jsonify(
             {
                 "code": 0,
                 "msg": "查询成功",
                 "data": {
-                    "list": paginated_cars,
+                    "list": cars_list,
                     "total": total,
                     "page": page,
                     "page_size": page_size,
@@ -262,6 +191,29 @@ def get_cars():
         )
     except Exception as e:
         logger.error(f"查询车辆失败：{str(e)}")
+        return jsonify({"code": -1, "msg": f"查询失败：{str(e)}"})
+
+
+@app.route("/api/cars/<int:car_id>", methods=["GET"])
+def get_car_detail(car_id):
+    """获取单个车辆详情"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM cars WHERE id = ?", (car_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            car_detail = dict(row)
+            conn.close()
+            return jsonify({"code": 0, "msg": "查询成功", "data": car_detail})
+        else:
+            conn.close()
+            return jsonify({"code": -1, "msg": "车辆不存在"})
+            
+    except Exception as e:
+        logger.error(f"查询车辆详情失败：{str(e)}")
         return jsonify({"code": -1, "msg": f"查询失败：{str(e)}"})
 
 

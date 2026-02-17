@@ -1,110 +1,229 @@
 Page({
   data: {
+    defaultAvatar: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
     avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
     nickName: '',
     openid: '',
-    saveEnabled: false // 控制按钮是否可用
+    saveEnabled: false,
+    hasGotNick: false // 避免重复授权
   },
 
   onLoad(options) {
-    console.log('profile页面加载，openid:', options.openid)
-    this.setData({ openid: options.openid })
+    // 修复点1：处理 options.openid 为 undefined 的情况
+    const openid = options.openid || wx.getStorageSync('userInfo')?.openid || '';
+    this.setData({ openid });
+    console.log('Profile页接收的openid:', openid); // 日志：方便排查
   },
 
-  // 选择头像
+  // 选择头像时，同步获取微信昵称
   onChooseAvatar(e) {
-    console.log('选择头像:', e.detail.avatarUrl)
-    this.setData({ 
-      avatarUrl: e.detail.avatarUrl 
-    })
-    this.checkSaveEnabled()
+    const { avatarUrl } = e.detail;
+    this.setData({ avatarUrl });
+
+    // 首次选择头像时，同步获取昵称
+    if (!this.data.hasGotNick) {
+      wx.getUserProfile({
+        desc: '用于完善用户资料（头像+昵称）',
+        success: (res) => {
+          const wxNickname = res.userInfo.nickName;
+          this.setData({
+            nickName: wxNickname,
+            hasGotNick: true
+          });
+          this.checkButtonStatus();
+        },
+        fail: (err) => {
+          console.log('用户拒绝授权昵称:', err);
+          wx.showToast({ title: '可手动输入昵称', icon: 'none' });
+          this.checkButtonStatus();
+        }
+      });
+    } else {
+      this.checkButtonStatus();
+    }
   },
 
-  // 输入昵称
+  // 手动修改昵称（可选）
   onNickInput(e) {
-    const nickName = e.detail.value?.trim()
-    console.log('输入昵称:', nickName)
-    this.setData({ nickName })
-    this.checkSaveEnabled()
+    const nickName = e.detail.value?.trim();
+    this.setData({ nickName });
+    this.checkButtonStatus();
   },
 
-  // 检查保存按钮是否可用
-  checkSaveEnabled() {
-    const { nickName, avatarUrl } = this.data
-    // 只要昵称不为空，且头像不是默认头像，就启用按钮
-    const enabled = nickName && avatarUrl !== this.data.avatarUrl
-    console.log('保存按钮可用:', enabled)
-    this.setData({ saveEnabled: enabled })
+  // 检查按钮是否亮起
+  checkButtonStatus() {
+    const { nickName, avatarUrl, defaultAvatar } = this.data;
+    const canSave = nickName.length > 0 && avatarUrl !== defaultAvatar;
+    this.setData({ saveEnabled: canSave });
   },
 
-  // 保存真实信息（核心修复）
+  // 保存并跳转（核心修复）
   onSave() {
-    const { nickName, avatarUrl, openid } = this.data
-
+    const { nickName, avatarUrl, openid } = this.data;
+    
+    // 1. 基础校验
     if (!nickName) {
-      wx.showToast({ title: '请输入昵称', icon: 'none' })
-      return
+      wx.showToast({ title: '请输入昵称', icon: 'none' });
+      return;
+    }
+    if (avatarUrl === this.data.defaultAvatar) {
+      wx.showToast({ title: '请选择头像', icon: 'none' });
+      return;
     }
 
-    if (avatarUrl === this.data.avatarUrl) {
-      wx.showToast({ title: '请选择头像', icon: 'none' })
-      return
-    }
-
-    // 1. 构造真实用户信息
+    // 2. 修复点2：即使openid为空，也先保存基础信息，避免跳转卡住
     const realUserInfo = {
-      openid,
+      openid: openid || 'temp_openid_' + Date.now(), // 临时ID兜底
       nickName,
       avatarUrl,
       session_key: wx.getStorageSync('userInfo')?.session_key || ''
-    }
+    };
 
-    console.log('开始保存用户信息:', realUserInfo)
+    // 3. 更新全局+本地存储
+    const app = getApp();
+    app.globalData.userInfo = realUserInfo;
+    app.globalData.isLoggedIn = true;
+    wx.setStorageSync('userInfo', realUserInfo);
+    console.log('保存的用户信息:', realUserInfo); // 日志：验证保存结果
 
-    // 2. 强制更新全局数据
-    const app = getApp()
-    app.globalData.userInfo = realUserInfo
-    app.globalData.isLoggedIn = true
-    app.globalData.openid = openid
-    console.log('全局数据已更新:', app.globalData.userInfo)
-
-    // 3. 保存到本地存储
-    wx.setStorageSync('userInfo', realUserInfo)
-    console.log('本地存储已更新:', wx.getStorageSync('userInfo'))
-
-    // 4. 显示成功提示
-    wx.showToast({ 
-      title: '信息保存成功', 
-      icon: 'success',
-      duration: 2000
-    })
-
-    // 5. 延迟返回上一页，确保提示显示
+    // 4. 修复点3：增强跳转容错（redirectTo失败则用reLaunch）
+    wx.showToast({ title: '登录成功', icon: 'success', duration: 1500 });
+    
     setTimeout(() => {
-      wx.navigateBack({
-        delta: 1,
+      wx.redirectTo({
+        url: '/pages/search/search',
         success: () => {
-          console.log('返回上一页成功')
-          // 6. 强制刷新上一页数据
-          const pages = getCurrentPages()
-          if (pages.length >= 2) {
-            const prevPage = pages[pages.length - 2]
-            if (prevPage) {
-              prevPage.setData({
-                userInfo: realUserInfo,
-                isLoggedIn: true
-              })
-              if (typeof prevPage.search === 'function') {
-                prevPage.search(1)
-              }
-            }
-          }
+          console.log('跳转搜索页成功');
         },
         fail: (err) => {
-          console.error('返回失败:', err)
-          wx.showToast({ title: '返回失败，请手动返回', icon: 'none' })
+          console.error('redirectTo失败:', err);
+          // 兜底方案：关闭所有页面，直接打开搜索页
+          wx.reLaunch({
+            url: '/pages/search/search',
+            success: () => {
+              console.log('reLaunch跳转搜索页成功');
+            },
+            fail: (err2) => {
+              console.error('reLaunch也失败:', err2);
+              wx.showToast({ title: '跳转失败，请手动返回', icon: 'none' });
+            }
+          });
         }
-      })
-    }, 2000)
+      });
+    }, 1500);
   }
-})
+});Page({
+  data: {
+    defaultAvatar: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
+    avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0',
+    nickName: '',
+    openid: '',
+    saveEnabled: false,
+    hasGotNick: false // 避免重复授权
+  },
+
+  onLoad(options) {
+    // 修复点1：处理 options.openid 为 undefined 的情况
+    const openid = options.openid || wx.getStorageSync('userInfo')?.openid || '';
+    this.setData({ openid });
+    console.log('Profile页接收的openid:', openid); // 日志：方便排查
+  },
+
+  // 选择头像时，同步获取微信昵称
+  onChooseAvatar(e) {
+    const { avatarUrl } = e.detail;
+    this.setData({ avatarUrl });
+
+    // 首次选择头像时，同步获取昵称
+    if (!this.data.hasGotNick) {
+      wx.getUserProfile({
+        desc: '用于完善用户资料（头像+昵称）',
+        success: (res) => {
+          const wxNickname = res.userInfo.nickName;
+          this.setData({
+            nickName: wxNickname,
+            hasGotNick: true
+          });
+          this.checkButtonStatus();
+        },
+        fail: (err) => {
+          console.log('用户拒绝授权昵称:', err);
+          wx.showToast({ title: '可手动输入昵称', icon: 'none' });
+          this.checkButtonStatus();
+        }
+      });
+    } else {
+      this.checkButtonStatus();
+    }
+  },
+
+  // 手动修改昵称（可选）
+  onNickInput(e) {
+    const nickName = e.detail.value?.trim();
+    this.setData({ nickName });
+    this.checkButtonStatus();
+  },
+
+  // 检查按钮是否亮起
+  checkButtonStatus() {
+    const { nickName, avatarUrl, defaultAvatar } = this.data;
+    const canSave = nickName.length > 0 && avatarUrl !== defaultAvatar;
+    this.setData({ saveEnabled: canSave });
+  },
+
+  // 保存并跳转（核心修复）
+  onSave() {
+    const { nickName, avatarUrl, openid } = this.data;
+    
+    // 1. 基础校验
+    if (!nickName) {
+      wx.showToast({ title: '请输入昵称', icon: 'none' });
+      return;
+    }
+    if (avatarUrl === this.data.defaultAvatar) {
+      wx.showToast({ title: '请选择头像', icon: 'none' });
+      return;
+    }
+
+    // 2. 修复点2：即使openid为空，也先保存基础信息，避免跳转卡住
+    const realUserInfo = {
+      openid: openid || 'temp_openid_' + Date.now(), // 临时ID兜底
+      nickName,
+      avatarUrl,
+      session_key: wx.getStorageSync('userInfo')?.session_key || ''
+    };
+
+    // 3. 更新全局+本地存储
+    const app = getApp();
+    app.globalData.userInfo = realUserInfo;
+    app.globalData.isLoggedIn = true;
+    wx.setStorageSync('userInfo', realUserInfo);
+    console.log('保存的用户信息:', realUserInfo); // 日志：验证保存结果
+
+    // 4. 修复点3：增强跳转容错（redirectTo失败则用reLaunch）
+    wx.showToast({ title: '登录成功', icon: 'success', duration: 1500 });
+    
+    setTimeout(() => {
+      wx.redirectTo({
+        url: '/pages/search/search',
+        success: () => {
+          console.log('跳转搜索页成功');
+        },
+        fail: (err) => {
+          console.error('redirectTo失败:', err);
+          // 兜底方案：关闭所有页面，直接打开搜索页
+          wx.reLaunch({
+            url: '/pages/search/search',
+            success: () => {
+              console.log('reLaunch跳转搜索页成功');
+            },
+            fail: (err2) => {
+              console.error('reLaunch也失败:', err2);
+              wx.showToast({ title: '跳转失败，请手动返回', icon: 'none' });
+            }
+          });
+        }
+      });
+    }, 1500);
+  }
+});

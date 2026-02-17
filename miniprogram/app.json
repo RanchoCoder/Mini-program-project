@@ -1,7 +1,8 @@
 {
   "pages": [
+    "pages/search/search",
     "pages/profile/profile",
-    "pages/search/search"
+    "pages/carDetail/carDetail"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

@@ -1,0 +1,9 @@
+<view class="container" wx:if="{{carDetail}}">
+  <image class="car-banner" src="{{carDetail.carImage}}" mode="aspectFill"></image>
+  <view class="car-title">{{carDetail.brand}} {{carDetail.model}}</view>
+  <view class="car-info-row">
+    <text>价格：¥{{carDetail.price}} 万</text>
+    <text>里程：{{carDetail.mileage}} 万公里</text>
+  </view>
+  <view class="car-desc">{{carDetail.description}}</view>
+</view>

@@ -1,0 +1,31 @@
+.container {
+  padding: 30rpx;
+}
+
+.car-banner {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 10rpx;
+  margin-bottom: 30rpx;
+}
+
+.car-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.car-info-row {
+  display: flex;
+  gap: 40rpx;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 30rpx;
+}
+
+.car-desc {
+  font-size: 30rpx;
+  color: #333;
+  line-height: 1.6;
+}

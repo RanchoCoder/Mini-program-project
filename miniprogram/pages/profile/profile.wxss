@@ -1,23 +1,27 @@
 .container {
   padding: 40rpx 30rpx;
+  min-height: 100vh;
+  background: #f5f5f5;
 }
 
 .avatar-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 60rpx;
+  margin-bottom: 80rpx;
 }
 
 .avatar-btn {
   padding: 0;
   background: none;
   border: none;
+  width: 200rpx;
+  height: 200rpx;
 }
 
 .avatar {
-  width: 200rpx;
-  height: 200rpx;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
 }
 
@@ -28,24 +32,31 @@
 }
 
 .nick-wrap {
-  margin-bottom: 60rpx;
+  margin-bottom: 80rpx;
+  background: #fff;
+  border-radius: 10rpx;
+  padding: 0 20rpx;
 }
 
 .nick-input {
-  padding: 20rpx;
-  border: 1px solid #eee;
-  border-radius: 10rpx;
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
   font-size: 32rpx;
+  border: none;
 }
 
 .save-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
   background: #07c160;
   color: #fff;
-  padding: 20rpx;
-  border-radius: 10rpx;
   font-size: 32rpx;
+  border-radius: 10rpx;
 }
 
 .save-btn[disabled] {
-  background: #ccc;
+  background: #cccccc !important;
+  color: #ffffff !important;
 }

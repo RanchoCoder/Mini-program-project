@@ -1,18 +1,128 @@
 <view class="container">
-  <input class="search-input" placeholder="输入品牌/车型/关键词" bindinput="onInput" />
-  <button bindtap="search">搜索</button>
-
-  <view wx:if="{{loading}}">加载中...</view>
-
-  <view wx:if="{{results.length===0 && !loading}}">无结果</view>
-
-  <block wx:for="{{results}}" wx:key="id">
-    <view class="item">
-      <text class="title">{{item.title}}</text>
-      <text class="meta">品牌：{{item.make}}  车型：{{item.model}}  年份：{{item.year}}</text>
-      <text class="meta">价格：¥{{item.price}}  行驶：{{item.mileage}} km</text>
-      <text class="desc">{{item.description}}</text>
-    </view>
-  </block>
+  <!-- 用户信息栏 -->
+  <view class="user-bar" wx:if="{{userInfo}}">
+    <image class="user-avatar" src="{{userInfo.avatarUrl}}" />
+    <text class="user-name">{{userInfo.nickName || '微信用户'}}</text>
+    <button class="logout-btn" size="mini" bindtap="onLogout">退出</button>
+  </view>
   
+  <view class="user-bar" wx:else>
+    <text class="user-guest">未登录</text>
+    <button class="login-btn" size="mini" bindtap="onLogin">微信登录</button>
+  </view>
+
+  <!-- 搜索栏（修复核心：给搜索栏添加外层view闭合标签） -->
+  <view class="search-bar">
+    <input 
+      class="search-input" 
+      placeholder="输入品牌/车型/关键词" 
+      value="{{q}}" 
+      bindinput="onInput" 
+    />
+    <button class="search-btn" bindtap="onSearch" size="mini">搜索</button>
+    <button class="clear-btn" bindtap="clearSearch" size="mini" wx:if="{{q}}">清空</button>
+  </view>
+
+  <!-- 高级筛选开关 -->
+  <view class="advanced-toggle">
+    <text bindtap="toggleAdvanced">
+      {{showAdvanced ? '收起筛选' : '高级筛选'}}
+    </text>
+  </view>
+
+  <!-- 高级筛选区域 -->
+  <view class="advanced-filters" wx:if="{{showAdvanced}}">
+    <view class="filter-group">
+      <text class="filter-label">品牌：</text>
+      <picker 
+        range="{{brands}}" 
+        value="{{brandIndex}}" 
+        bindchange="onBrandChange"
+      >
+        <view class="picker">{{brand ? brand : '选择品牌'}}</view>
+      </picker>
+    </view>
+
+    <view class="filter-group">
+      <text class="filter-label">年份范围：</text>
+      <view class="year-range">
+        <input 
+          type="number" 
+          placeholder="{{minYearRange}}" 
+          value="{{minYear}}" 
+          bindinput="onMinYearInput"
+          class="year-input"
+        />
+        <text> - </text>
+        <input 
+          type="number" 
+          placeholder="{{maxYearRange}}" 
+          value="{{maxYear}}" 
+          bindinput="onMaxYearInput"
+          class="year-input"
+        />
+      </view>
+    </view>
+
+    <view class="filter-actions">
+      <button bindtap="resetFilters" size="mini">重置筛选</button>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 结果统计 -->
+  <view class="result-info" wx:if="{{results.length > 0}}">
+    <text>共找到 {{total}} 条结果</text>
+    <text class="page-info">第 {{page}} / {{totalPages}} 页</text>
+  </view>
+
+  <!-- 无结果提示 -->
+  <view class="no-results" wx:if="{{results.length === 0 && !loading}}">
+    <text>暂无结果</text>
+  </view>
+
+  <!-- 结果列表 -->
+  <view class="results-list">
+    <block wx:for="{{results}}" wx:key="id">
+      <view class="car-item">
+        <text class="car-title">{{item.title}}</text>
+        <view class="car-meta">
+          <text>品牌：{{item.make}}</text>
+          <text>车型：{{item.model}}</text>
+          <text>年份：{{item.year}}</text>
+        </view>
+        <view class="car-meta">
+          <text class="car-price">价格：¥{{item.price}}</text>
+          <text>行驶：{{item.mileage}}km</text>
+        </view>
+        <text class="car-desc">{{item.description}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore && results.length > 0}}">
+    <button 
+      bindtap="loadMore" 
+      loading="{{loadingMore}}"
+      disabled="{{loadingMore}}"
+      size="mini"
+    >
+      {{loadingMore ? '加载中...' : '加载更多'}}
+    </button>
+  </view>
+
+  <!-- 无更多数据提示 -->
+  <view class="no-more" wx:if="{{!hasMore && results.length > 0}}">
+    <text>没有更多数据了</text>
+  </view>
+
+  <!-- 触底加载提示 -->
+  <view class="reach-bottom" wx:if="{{loadingMore}}">
+    <text>正在加载更多...</text>
+  </view>
 </view>

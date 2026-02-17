@@ -1,6 +1,7 @@
 import sqlite3
+import os
 
-DB = 'cars.db'
+DB = os.path.join(os.path.dirname(__file__), 'cars.db')
 
 DATA = [
     ("Toyota", "Corolla", 2015, 60000, 50000, "丰田 卡罗拉 2015年 自动挡 保养良好", "保养良好，无事故，自动挡，省油"),

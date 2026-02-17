@@ -1,0 +1,51 @@
+.container {
+  padding: 40rpx 30rpx;
+}
+
+.avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60rpx;
+}
+
+.avatar-btn {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.avatar {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 50%;
+}
+
+.tip {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.nick-wrap {
+  margin-bottom: 60rpx;
+}
+
+.nick-input {
+  padding: 20rpx;
+  border: 1px solid #eee;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+}
+
+.save-btn {
+  background: #07c160;
+  color: #fff;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+}
+
+.save-btn[disabled] {
+  background: #ccc;
+}

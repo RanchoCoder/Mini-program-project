@@ -1,0 +1,6 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "完善用户信息",
+  "enablePullDownRefresh": false,
+  "onReachBottomDistance": 50
+}

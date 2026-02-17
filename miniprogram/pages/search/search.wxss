@@ -1,6 +1,251 @@
-.container { padding: 12px }
-.search-input { width: 70%; border: 1px solid #ddd; padding: 6px }
-.item { padding: 8px 0; border-bottom: 1px solid #f0f0f0 }
-.title { font-weight: bold }
-.meta { color: #666; display: block; margin-top: 4px }
-.desc { color: #333; display: block; margin-top: 6px }
+/* 基础容器 */
+.container {
+  padding: 12px;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.search-input {
+  flex: 1;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.search-btn, .clear-btn {
+  height: 36px;
+  line-height: 36px;
+  min-width: 60px;
+  font-size: 14px;
+}
+
+.search-btn {
+  background-color: #07c160;
+  color: white;
+}
+
+.clear-btn {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+/* 高级筛选开关 */
+.advanced-toggle {
+  text-align: center;
+  margin-bottom: 12px;
+  color: #07c160;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+/* 高级筛选区域 */
+.advanced-filters {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filter-label {
+  width: 80px;
+  font-size: 14px;
+  color: #333;
+}
+
+.picker {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.year-range {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.year-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.filter-actions {
+  text-align: center;
+}
+
+/* 加载状态 */
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 结果信息 */
+.result-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+}
+
+.page-info {
+  color: #07c160;
+  font-weight: bold;
+}
+
+/* 无结果提示 */
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* 结果列表 */
+.results-list {
+  margin-bottom: 16px;
+}
+
+.car-item {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.car-title {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.car-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.car-price {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.car-desc {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.load-more button {
+  width: 100%;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* 无更多数据提示 */
+.no-more {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 触底加载提示 */
+.reach-bottom {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 12px;
+}
+
+/* 用户信息栏 */
+.user-bar {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.user-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.user-guest {
+  flex: 1;
+  font-size: 16px;
+  color: #666;
+}
+
+.logout-btn, .login-btn {
+  height: 32px;
+  line-height: 32px;
+  min-width: 80px;
+  font-size: 13px;
+}
+
+.logout-btn {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.login-btn {
+  background-color: #07c160;
+  color: white;
+}

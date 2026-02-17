@@ -1,0 +1,29 @@
+<view class="container">
+  <!-- 微信官方头像选择组件 -->
+  <view class="avatar-wrap">
+    <button open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar" class="avatar-btn">
+      <image class="avatar" src="{{avatarUrl}}"></image>
+    </button>
+    <text class="tip">点击选择你的真实头像</text>
+  </view>
+
+  <!-- 昵称输入框 -->
+  <view class="nick-wrap">
+    <input 
+      type="text" 
+      placeholder="请输入你的真实昵称" 
+      bindinput="onNickInput"
+      value="{{nickName}}"
+      class="nick-input"
+    />
+  </view>
+
+  <!-- 保存按钮 -->
+  <button 
+  bindtap="onSave" 
+  class="save-btn"
+  disabled="{{!saveEnabled}}"
+>
+  保存真实信息
+  </button>
+</view>

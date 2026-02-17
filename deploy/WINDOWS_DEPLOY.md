@@ -1,9 +1,9 @@
 # Windows服务器部署指南
 
 ## 📋 服务器信息
-- **IP地址**: 8.136.42.59
+- **IP地址**: 
 - **操作系统**: Windows Server
-- **区域**: 华东1(杭州)
+- **区域**: 
 
 ## 🚀 快速部署步骤
 
@@ -23,8 +23,8 @@ cd C:\Users\Administrator\Desktop\used_car_search\deploy
 
 4. **测试访问**
 打开浏览器访问：
-- http://8.136.42.59:5000/ - 首页
-- http://8.136.42.59:5000/api/cars - 车辆列表API
+- http:// - 首页
+- http:///api/cars - 车辆列表API
 
 ---
 
@@ -100,8 +100,8 @@ FLASK_DEBUG=False
 SECRET_KEY=your-secret-key-here
 
 # 微信小程序配置
-WX_APPID=wxd18848e6830ff127
-WX_SECRET=bfa1fb0d3bdb681d8be3c6b085ac5443
+WX_APPID=
+WX_SECRET=
 
 # 数据库配置
 DATABASE_TYPE=sqlite
@@ -122,7 +122,7 @@ DATABASE_PATH=C:\Apps\used_car_search\cars.db
 
 如果有域名，在阿里云DNS解析中添加A记录：
 - 主机记录：@ 或 www
-- 记录值：8.136.42.59
+- 记录值：
 
 ---
 
@@ -162,10 +162,10 @@ Get-Content C:\Apps\Logs\used_car_search\app.log -Wait
 
 部署完成后，可以通过以下地址访问：
 
-- **首页**: http://8.136.42.59:5000/
-- **API文档**: http://8.136.42.59:5000/
-- **车辆列表**: http://8.136.42.59:5000/api/cars
-- **健康检查**: http://8.136.42.59:5000/health
+- **首页**: http://
+- **API文档**: http:///
+- **车辆列表**: http:///api/cars
+- **健康检查**: http:///health
 
 ---
 
@@ -220,9 +220,9 @@ netsh advfirewall set allprofiles state on
 
 ## 📞 下一步
 
-1. **测试API**: 在浏览器中访问 http://8.136.42.59:5000/api/cars
+1. **测试API**: 在浏览器中访问 http:///api/cars
 2. **配置小程序**: 在微信小程序后台添加服务器域名
 3. **配置SSL**: 如需HTTPS，可申请SSL证书
-4. **配置域名**: 将域名解析到 8.136.42.59
+4. **配置域名**: 将域名解析到
 
 需要我帮您完成其中哪一步？
